@@ -1,31 +1,86 @@
 #include <cstdint>
 #include "Model.h"
+#include "GPU.h";
 
-std::uint64_t Model::mixByte(std::uint64_t state, unsigned char byte) const {
+std::uint64_t Model::mixByte(std::uint64_t state, unsigned char byte) const
+{
     state ^= byte;
     state *= 1099511628211ULL;
     return state;
 }
 
-std::uint64_t Model::mixString(std::uint64_t state, const std::string& text) const {
+std::uint64_t Model::mixString(std::uint64_t state, const std::string &text) const
+{
     const std::uint64_t length = static_cast<std::uint64_t>(text.size());
-    for (unsigned int shift = 0; shift < 64; shift += 8) {
+    for (unsigned int shift = 0; shift < 64; shift += 8)
+    {
         state = mixByte(state, static_cast<unsigned char>((length >> shift) & 0xFFULL));
     }
-    for (unsigned char byte : text) {
+    for (unsigned char byte : text)
+    {
         state = mixByte(state, byte);
     }
     return state;
 }
 
+std::vector<std::string> Model::tokenizer(std::string text)
+{
+    std::string tempText;
+    std::vector<std::string> wordsVector;
+    for (size_t i = 0; i < text.length(); i++)
+    {
+        if (isalnum(text[i]) || text[i] == ' ')
+        {
+            tempText += text[i];
+        }
+    }
+
+    char space = ' ';
+    size_t stringStart = tempText.find_first_not_of(space);
+
+    while (stringStart != std::string::npos)
+    {
+        size_t stringEnd = tempText.find_first_of(space, stringStart);
+
+        wordsVector.push_back(tempText.substr(stringStart, stringEnd - stringStart));
+        stringStart = tempText.find_first_not_of(space, stringEnd);
+    }
+    return wordsVector;
+}
+
+Model::Model(const std::string &id, std::size_t embeddingSize):modelId(id),embeddingSize(embeddingSize){}
+
+const std::string Model::getId() const
+{
+    return this->modelId;
+}
+
+void Model::setId(const std::string &id)
+{
+    this->modelId = id;
+}
+
+size_t Model::getEmbeddingSize() const
+{
+    return this->embeddingSize;
+}
+
+void Model::setEmbeddingSize(size_t embeddingSize)
+{
+    this->embeddingSize = embeddingSize;
+}
+
 // Produces reproducible synthetic vectors for the simulation.
 // The constants come from FNV-1a and SplitMix64; these are not real text embeddings.
-void Model::generateTokenEmbedding(const std::vector<std::string>& tokens, GPU& gpu, size_t slot,
-size_t offset) const {
+void Model::generateTokenEmbedding(const std::vector<std::string> &tokens, GPU &gpu, size_t slot,
+                                   size_t offset) const
+{
     // The tokens are hashed joined by single spaces (a token never contains a space).
     std::string token;
-    for (std::size_t i = 0; i < tokens.size(); ++i) {
-        if (i > 0) {
+    for (std::size_t i = 0; i < tokens.size(); ++i)
+    {
+        if (i > 0)
+        {
             token += " ";
         }
         token += tokens[i];
@@ -36,10 +91,9 @@ size_t offset) const {
     state = mixString(state, modelId);
     state = mixString(state, token);
 
-
-
     // Generate one deterministic value per dimension.
-    for (std::size_t i = 0; i < embeddingSize; ++i) {
+    for (std::size_t i = 0; i < embeddingSize; ++i)
+    {
         state += 0x9E3779B97F4A7C15ULL;
         std::uint64_t value = state;
         value = (value ^ (value >> 30)) * 0xBF58476D1CE4E5B9ULL;
