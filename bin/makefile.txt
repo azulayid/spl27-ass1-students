@@ -1,0 +1,14 @@
+all: link
+	
+
+link: compile
+	@echo "linking source files"
+	g++ -o bin/server bin/<>.o bin/<>.o
+
+compile: src/ src/
+	@echo "Compiling src files"
+	g++ -Wall -Weffc++ -std=c++11 -c -Iinclude src/<>.cpp -o bin/File.o
+	g++ -Wall -Weffc++ -std=c++11 -c -Iinclude src/<>.cpp -o bin/File.o
+clean: 
+	@echo "Cleaning bin directory"
+	rm -rf bin/*
