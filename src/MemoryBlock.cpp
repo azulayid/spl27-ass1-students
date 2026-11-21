@@ -85,7 +85,7 @@ MemoryBlock &MemoryBlock::operator=(MemoryBlock &&other) noexcept
     return *this;
 }
 
-MemoryBlock::MemoryBlock(MemoryBlock &&other)noexcept : size(other.size), refCount(other.refCount), data(other.data)
+MemoryBlock::MemoryBlock(MemoryBlock &&other) noexcept : size(other.size), refCount(other.refCount), data(other.data)
 {
     other.data = nullptr;
     other.refCount = 0;
@@ -96,13 +96,16 @@ void MemoryBlock::acquire()
 {
     refCount++;
 }
+
 IdleAction MemoryBlock::release()
 {
-    if(refCount>0){
-        refCount--; 
+    if (refCount > 0)
+    {
+        refCount--;
     }
-    
-    if(refCount == 0){
+
+    if (refCount == 0)
+    {
         return onLastRelease();
     }
 
