@@ -105,7 +105,6 @@ IdleAction MemoryBlock::release()
     if(refCount == 0){
         return onLastRelease();
     }
-    
+
     return IdleAction::KeepCached;
 }
-
