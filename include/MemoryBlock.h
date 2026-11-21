@@ -1,7 +1,7 @@
 #ifndef MEMORY_BLOCK_H_
 #define MEMORY_BLOCK_H_
 
-#include <string>
+#include <cstddef>
 
 enum class IdleAction
 {
@@ -36,17 +36,17 @@ public:
 class KVBlock : public MemoryBlock
 {
 public:
-    KVBlock(size_t size): MemoryBlock(size) {};
-    virtual IdleAction onLastRelease() const{return IdleAction::KeepCached;}
-    virtual MemoryBlock *clone() const{return new KVBlock(*this);}
+    KVBlock(size_t size) : MemoryBlock(size) {};
+    virtual IdleAction onLastRelease() const override { return IdleAction::KeepCached; }
+    virtual MemoryBlock *clone() const override { return new KVBlock(*this); }
 };
 
 class EmbeddingWorkspace : public MemoryBlock
 {
 public:
-    EmbeddingWorkspace(size_t size): MemoryBlock(size){};
-    virtual IdleAction onLastRelease() const{return IdleAction::Destroy;}
-    virtual MemoryBlock *clone() const{return new EmbeddingWorkspace(*this);}
+    EmbeddingWorkspace(size_t size) : MemoryBlock(size) {};
+    virtual IdleAction onLastRelease() const override { return IdleAction::Destroy; }
+    virtual MemoryBlock *clone() const override { return new EmbeddingWorkspace(*this); }
 };
 
 #endif

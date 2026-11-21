@@ -1,6 +1,16 @@
-#include "MemoryBlock.h";
+#include "MemoryBlock.h"
 
-MemoryBlock::MemoryBlock(size_t size) : size(size), refCount(0), data(new int[size]()) {}
+MemoryBlock::MemoryBlock(size_t size) : size(size), refCount(0)
+{
+    if (size > 0)
+    {
+        data = new int[size]();
+    }
+    else
+    {
+        data = nullptr;
+    }
+}
 
 MemoryBlock::~MemoryBlock()
 {
@@ -65,6 +75,7 @@ int MemoryBlock::readFromBlock(std::size_t offset) const
     {
         return data[offset];
     }
+    return -1;
 }
 
 MemoryBlock &MemoryBlock::operator=(MemoryBlock &&other) noexcept
